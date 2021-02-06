@@ -2,10 +2,16 @@ import cv2
 
 class Detector():
   def __init__(self, path_to_weights:str, path_to_config:str, gpu:bool, classes_name) -> None:
+      """
+      gpu: True if using gpu to inference
+      classes_name: txt file
+      """
       self.weights = path_to_weights
       self.config = path_to_config
       self.use_gpu = gpu
-      self.classes_name = classes_name
+      with open(classes_name, "r") as f:
+        class_names = [cname.strip() for cname in f.readlines()]    
+      self.classes_name = class_names
   def init_yolo(self):
       try:
         net = cv2.dnn.readNet(self.weights, self.config)
