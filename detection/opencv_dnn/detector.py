@@ -22,7 +22,9 @@ class Detector():
         self.model.setInputParams(size=(416, 416), scale=1/255)
         print("Loading model successfully")
       except:
-        assert "Error when load model from file"
+        print("Error when load model from file")
+        exit()
+        
 
   def detect(self, frame, confidence_threshold, nms_threshold):
         classes, score, bb_list = self.model.detect(frame, confidence_threshold, nms_threshold)
