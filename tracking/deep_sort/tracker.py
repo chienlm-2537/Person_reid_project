@@ -37,7 +37,7 @@ class Tracker:
 
     """
 
-    def __init__(self, metric, max_iou_distance=0.7, max_age=100, n_init=3):
+    def __init__(self, metric, max_iou_distance=0.7, max_age=3000, n_init=3):
         self.metric = metric # Phuong phap do khoang cach phuc vu cho tracking
         self.max_iou_distance = max_iou_distance # Nguong IOU 
         self.max_age = max_age # so luong lan misss toi da trc khi delete track
