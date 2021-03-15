@@ -1,12 +1,12 @@
-from tracking.deep_sort import preprocessing
-from tracking.deep_sort import nn_matching
-from tracking.deep_sort.detection import Detection
-from tracking.deep_sort.tracker import Tracker
-from tracking.deep_sort import generate_detections as gdet
+import time
+import cv2
 
 from detection.opencv_dnn.detector import Detector
-import cv2
-import time
+from tracking.deep_sort import generate_detections as gdet
+from tracking.deep_sort import nn_matching, preprocessing
+from tracking.deep_sort.detection import Detection
+from tracking.deep_sort.tracker import Tracker
+from utils import mouse_event, draw
 
 cap = cv2.VideoCapture("videos/1.mp4")
 
@@ -27,6 +27,11 @@ metric = nn_matching.NearestNeighborDistanceMetric(
 )
 tracker = Tracker(metric)
 
+cv2.namedWindow("Test")
+cv2.setMouseCallback("Test", mouse_event)
+
+points = [(264, 295), (405, 286), (430, 359), (254, 373)]
+
 while cap.isOpened():
     _, frame = cap.read()
     if not _:
@@ -35,6 +40,7 @@ while cap.isOpened():
     classes, scores, bb_list = detector.detect(
         frame=frame, confidence_threshold=0.4, nms_threshold=0.4
     )
+    print(bb_list)
     features = encoder(frame, boxes=bb_list)
     detections = [
         Detection(bbox, confidence, cls, feature)
@@ -56,15 +62,7 @@ while cap.isOpened():
             (255, 255, 255),
             2,
         )
-        cv2.putText(
-            frame,
-            "ID: " + str(track.track_id),
-            (int(bbox[0]), int(bbox[1])),
-            0,
-            1,
-            (0, 0, 255),
-            2,
-        )
+        cv2.putText(frame, "ID: " + str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 1, (0, 0, 255), 2, )
     for det in detections:
         bbox = det.to_tlbr()
         score = "%.2f" % round(det.confidence * 100, 2) + "%"
@@ -92,7 +90,8 @@ while cap.isOpened():
         frame, fps_label, (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2
     )
     frame = cv2.resize(frame, (640, 480))
-    cv2.imshow("deepsort", frame)
+    frame = draw(frame, points)
+    cv2.imshow("Test", frame)
 
     if cv2.waitKey(1) & 0xFF == 32:
         break
