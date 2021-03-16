@@ -22,9 +22,7 @@ nn_budget = None
 
 model_filename = "models/deepsort_model/mars-small128.pb"
 encoder = gdet.create_box_encoder(model_filename, batch_size=1)
-metric = nn_matching.NearestNeighborDistanceMetric(
-    "cosine", MAX_COSINE_DISTANCE, nn_budget
-)
+metric = nn_matching.NearestNeighborDistanceMetric("cosine", MAX_COSINE_DISTANCE, nn_budget)
 tracker = Tracker(metric)
 
 while cap.isOpened():
@@ -32,16 +30,11 @@ while cap.isOpened():
     if not _:
         break
     start = time.time()
-    classes, scores, bb_list = detector.detect(
-        frame=frame, confidence_threshold=0.4, nms_threshold=0.4
-    )
+    classes, scores, bb_list = detector.detect(frame=frame, confidence_threshold=0.4, nms_threshold=0.4)
     features = encoder(frame, boxes=bb_list)
-    detections = [
-        Detection(bbox, confidence, cls, feature)
-        for bbox, confidence, cls, feature in zip(
-            bb_list, scores, classes, features
-        )
-    ]
+    detections = [ Detection(bbox, confidence, cls, feature)
+                for bbox, confidence, cls, feature in zip(
+            bb_list, scores, classes, features)]
     tracker.predict()
     tracker.update(detections)
 

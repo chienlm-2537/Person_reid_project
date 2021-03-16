@@ -3,3 +3,8 @@ __pycache__
 *.mp4
 past_image/*
 *.avi
+reid/model/ft_ResNet50/*.pth
+*.png
+query/
+datn/
+.vscode

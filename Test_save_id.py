@@ -8,7 +8,10 @@ from tracking.deep_sort import generate_detections as gdet
 from tracking.deep_sort import nn_matching, preprocessing
 from tracking.deep_sort.detection import Detection
 from tracking.deep_sort.tracker import Tracker
+import shutil
 
+shutil.rmtree("past_image/")
+os.makedirs("past_image")
 
 def crop_and_save(ID: int, frame, bbox, frame_num):
     if not os.path.exists("past_image/" + str(ID)):
@@ -74,7 +77,8 @@ while cap.isOpened():
         if not track.is_confirmed() or track.time_since_update > 1:
             continue
         bbox = track.to_tlbr()
-        crop_and_save(track.track_id, frame1, bbox, frame_num)
+        if frame_num % 5 == 0:
+            crop_and_save(track.track_id, frame1, bbox, frame_num)
         cv2.rectangle(
             frame,
             (int(bbox[0]), int(bbox[1])),
