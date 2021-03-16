@@ -1,9 +1,10 @@
 from face_detector import get_detector, detect
 import cv2
 import time
-image  = cv2.imread("/home/le.minh.chien/Downloads/yoona.jpg")
-
-using_hog = True
+import imutils
+image  = cv2.imread("/home/le.minh.chien/Downloads/Market/pytorch/gallery/1502/835.png")
+image = imutils.resize(image, width=300)
+using_hog = False
 
 detector = get_detector(using_hog)
 
