@@ -79,6 +79,7 @@ class Tracker:
             self.tracks[track_idx].mark_missed()
 
         for detection_idx in unmatched_detections:
+          if detections[detection_idx].check_inside == 1:
             self._initiate_track(detections[detection_idx])
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
