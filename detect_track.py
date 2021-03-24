@@ -50,16 +50,15 @@ while cap.isOpened():
     frame = cv2.resize(frame, (640, 480))
     start = time.time()
     classes, scores, bb_list = detector.detect(frame=frame, confidence_threshold=0.4, nms_threshold=0.4)
-
+    s1 = time.time()
+    print("Detection time: {}".format(s1 - start))
 
     # after detection we will check position of object
     bb_check = dict()
     check_insides = []
     for box in bb_list:
-      print(box)
       check, center_point = check_position(box, points)
       check_insides.append(check)
-    print(len(bb_list), len(check_insides))
 
     features = encoder(frame, boxes=bb_list)
     detections = [ Detection(bbox, confidence, cls, feature, check_inside)
@@ -67,7 +66,8 @@ while cap.isOpened():
             bb_list, scores, classes, features, check_insides)]
     tracker.predict()
     tracker.update(detections)
-
+    s2 = time.time()
+    print("Tracking time: {}".format(s2-s1))
     for track in tracker.tracks:
         if not track.is_confirmed() or track.time_since_update > 1:
             continue
@@ -76,7 +76,9 @@ while cap.isOpened():
                       COLOR[track.track_id%3],2)
         obj_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
         obj_img = imutils.resize(obj_img, width=450)
+        s3 = time.time()
         face_boxes = face_detect(obj_img, face_detector)
+        print("Face detection time: {}".format(time.time() - s3))
         for box in face_boxes:
           x_min, x_max, y_min, y_max = box
           cv2.rectangle(obj_img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 3)
