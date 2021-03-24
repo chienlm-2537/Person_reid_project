@@ -30,7 +30,7 @@ def check_position(obj_coordinate, points):
   """
   x_min, y_min, weight, height = obj_coordinate
   x_center = int(x_min + weight/2)
-  y_center = int(y_min + height/2)
-
+  y_center = int(y_min + height)
+  # print("[INFO] line 34 utils center point coor: ({}, {})".format( x_center, y_center))
   check = cv2.pointPolygonTest(np.array([points]), (x_center, y_center), False)
-  return check
+  return check, (x_center, y_center)

@@ -4,7 +4,7 @@ import dlib
 
 def get_detector(hog=True):
     if hog:
-        return dlib.dlib.get_frontal_face_detector()
+        return dlib.get_frontal_face_detector()
     else:
         return dlib.cnn_face_detection_model_v1("../../models/face_detection/mmod_dlib.dat")
 
@@ -12,7 +12,7 @@ def get_detector(hog=True):
 
 
 
-def detect(image, detector, hog= True):
+def face_detect(image, detector, hog= True):
     faceRects = detector(image, 0)
     bbox = []
     if hog:

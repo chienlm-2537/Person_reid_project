@@ -9,11 +9,12 @@ from tracking.deep_sort import nn_matching, preprocessing
 from tracking.deep_sort.detection import Detection
 from tracking.deep_sort.tracker import Tracker
 from utils import check_position, draw, mouse_event
-
+from face_recog.face_detection.face_detector import get_detector, face_detect
+import imutils
 
 COLOR = [tuple([rd.randint(0, 255)]*3), tuple([rd.randint(0, 255)]*3), tuple([rd.randint(0, 255)]*3)]
 print(COLOR)
-cap = cv2.VideoCapture("videos/03.mp4")
+cap = cv2.VideoCapture("videos/01.mp4")
 
 weights = "models/yolo/weights/yolov4_tiny.weights"
 config = "models/yolo/configs/yolov4_tiny.cfg"
@@ -30,10 +31,14 @@ encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 metric = nn_matching.NearestNeighborDistanceMetric("cosine", MAX_COSINE_DISTANCE, nn_budget)
 tracker = Tracker(metric)
 
+# Define face detection model
+face_detector = get_detector(hog=True)
+
+
+
 cv2.namedWindow("Test")
 cv2.setMouseCallback("Test", mouse_event)
 
-cv2.namedWindow("Object")
 
 
 points = [(264, 295), (405, 286), (430, 359), (254, 373)]
@@ -69,6 +74,15 @@ while cap.isOpened():
         bbox = track.to_tlbr()
         cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
                       COLOR[track.track_id%3],2)
+        obj_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+        obj_img = imutils.resize(obj_img, width=450)
+        face_boxes = face_detect(obj_img, face_detector)
+        for box in face_boxes:
+          x_min, x_max, y_min, y_max = box
+          cv2.rectangle(obj_img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 3)
+
+        cv2.imshow("Obj ID {}".format(str(track.track_id)), obj_img)
+
         # cv2.putText(frame, "ID: " + str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 1, (0, 0, 255), 2)
 
 
