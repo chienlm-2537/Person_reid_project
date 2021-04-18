@@ -35,7 +35,12 @@ tracker = Tracker(metric)
 
 # Define face detection model
 face_detector = get_detector(hog=True)
+fourcc = cv2.VideoWriter_fourcc(*"XVID")
 
+w = int(cap.get(3))
+h = int(cap.get(4))
+fourcc = cv2.VideoWriter_fourcc(*"XVID")
+out = cv2.VideoWriter("Test_Result.avi", fourcc, 30, (w, h))
 
 
 cv2.namedWindow("Test")
@@ -76,21 +81,24 @@ while cap.isOpened():
         bbox = track.to_tlbr()
         cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
                       COLOR[track.track_id%3],2)
-        obj_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
-        scale_factor = 450 / obj_img.shape[1]
-        obj_img = imutils.resize(obj_img, width=450)
-        s3 = time.time()
-        face_boxes = face_detect(obj_img, face_detector)
-        # print("Face detection time: {}".format(time.time() - s3))
-        for box in face_boxes:
-          box = np.array(box) * (1/scale_factor)
-          x_min, x_max, y_min, y_max = box
-          x_min_real = int(x_min + bbox[0])
-          y_min_real = int(y_min + bbox[1])
-          x_max_real = int(x_max + bbox[0])
-          y_max_real = int(y_max + bbox[1])
-          # cv2.rectangle(obj_img, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 3)
-          cv2.rectangle(frame, (x_min_real, y_min_real), (x_max_real, y_max_real), (0, 255, 0), 2)
+        try:
+          obj_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+          scale_factor = 450 / obj_img.shape[1]
+          obj_img = imutils.resize(obj_img, width=450)
+          s3 = time.time()
+          face_boxes = face_detect(obj_img, face_detector)
+          # print("Face detection time: {}".format(time.time() - s3))
+          for box in face_boxes:
+            box = np.array(box) * (1/scale_factor)
+            x_min, x_max, y_min, y_max = box
+            x_min_real = int(x_min + bbox[0])
+            y_min_real = int(y_min + bbox[1])
+            x_max_real = int(x_max + bbox[0])
+            y_max_real = int(y_max + bbox[1])
+            # cv2.rectangle(obj_img, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 3)
+            cv2.rectangle(frame, (x_min_real, y_min_real), (x_max_real, y_max_real), (0, 255, 0), 2)
+        except:
+          print("Error when crop object image")
         # cv2.imshow("Obj ID {}".format(str(track.track_id)), obj_img)
 
         # cv2.putText(frame, "ID: " + str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 1, (0, 0, 255), 2)
@@ -103,10 +111,11 @@ while cap.isOpened():
     end = time.time()
 
 
-    fps_label = "FPS: %.2f" % (1 / (end - start))
-    cv2.putText(frame, fps_label, (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+    # fps_label = "FPS: %.2f" % (1 / (end - start))
+    # cv2.putText(frame, fps_label, (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
     frame = draw(frame, points)
     cv2.imshow("Test", frame)
+    out.write(frame)
 
     if cv2.waitKey(1) & 0xFF == 32:
         break
@@ -114,3 +123,4 @@ while cap.isOpened():
       print("Pause")
       cv2.waitKey(0)
 cv2.destroyAllWindows()
+out.release()
